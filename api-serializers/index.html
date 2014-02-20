@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>rails-api i active_model_serializers</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <style type="text/css">
+      body {
+        font-size: 25px;
+      }
+      h1 {
+        font-size: 3em;
+      }
+      h2 {
+        font-size: 2em;
+      }
+      h3 {
+        font-size: 1.5em;
+      }
+      .remark-code {
+        font-size: 0.8em;
+      }
+      .footnote {
+        position: absolute;
+        bottom: 3em;
+        font-size: 0.5em;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle
+
+# rails-api
+# active_model_serializers
+
+### Adam Niedzielski
+
+---
+class: center
+
+## Kim on jest?
+
+programista Ruby on Rails @goodylabs
+
+twitter: @niedzielskiadam
+
+blog: adamniedzielski.github.io
+???
+
+* niedawno założyłem konto na twitterze - jak widzicie adamniedzielski było już zajęte
+* oraz bloga - możecie znaleźć tam cały jeden post
+
+---
+
+## rails-api
+
+"Rails for API only applications"
+
+???
+
+* jeżeli tworzymy aplikację i z góry wiemy że nie będzie renderowała HTML to warto pozbyć się warstwy widoku 
+* railsy są modularne - możemy wyłączyć to z czego nie będziemy korzystać
+* rails-api robi to za nas
+
+---
+
+## Korzyści
+
+* nieco lżejsza aplikacja
+
+        37.4 MB vs. 43.8 MB -> 15%
+
+* nieco szybsza aplikacja
+
+        31.0 ms vs. 35.2 ms -> 12 %
+
+* użyteczny generator
+
+???
+* tyle zajmuje proces serwera po uruchomieniu dla świeżo wygenerowanej aplikacji
+* identyczny kod, ładujący z bazy 100 rekordów i renderujący JSONa
+* bardzo prosto zacząć go używać
+* nic nie stoi na przeszkodzie żeby potem włączyć niektóre z wyłączonych modułów
+* lub też całkowicie zrezygnować z rails-api - to nie jest żaden bagaż
+
+---
+
+## active_model_serializers
+
+```ruby
+class UserSerializer < ActiveModel::Serializer
+  attributes :id, :first_name, :last_name, :email
+
+  has_one :address
+  has_many :packages
+end
+```
+
+???
+
+* active_model_serializers pomagają kontrolować wygenerowanego JSONa
+* serializery mieszkają w folderze app/serializers i muszą dziedziczyć po ActiveModel::Serializer
+* w intuicyjny sposób definiujemy co ma znaleźć się w JSONie
+* w przypadku asocjacji użyty zostanie AddressSerializer / PackageSerializer
+
+---
+
+## Zwykły obiekt, żadna magia
+
+```ruby
+class UserSerializer < ActiveModel::Serializer
+  
+  [...]
+
+  attributes :full_name, :email_address
+
+  def full_name
+    "#{object.first_name} #{object.last_name}"
+  end
+
+  def email_address
+    object.email
+  end
+
+  [...]
+end
+```
+
+???
+
+* możemy definiować metody i potem używać ich jako atrybutów
+
+---
+
+## A to kod w UsersController
+
+```ruby
+[...]
+
+  def index
+    @users = User.includes(:address, :packages)
+
+    render json: @users
+  end
+
+[...]
+```
+
+???
+
+* jak widać bardzo prosty
+
+---
+
+## Wynik
+
+```javascript
+{
+  "users":
+    [
+      {
+        "id": 1,
+        "first_name": "Some String",
+        "last_name": "Another String",
+        [...]
+        "address": { "street": "Yet another string" },
+        "packages": [
+          { "id": 2, "status": "delivered" },
+          { "id": 5, "status": "lost" }
+        ]
+      }
+    ]
+}
+```
+
+---
+
+## PackageSerializer
+
+```ruby
+class PackageSerializer < ActiveModel::Serializer
+  attributes :id, :status
+
+  has_one :user
+end
+```
+
+???
+* załóżmy jednak że chcemy aby po zapytaniu o paczkę, wygenerowany JSON zawierał też informację o właścicielu paczki
+* czy coś tutaj wygląda nie tak? skoro użytkownik ma dużo paczek, to paczka należy do użytkownika - belongs_to
+* z punktu widzenia active_model_serializers to nieważne, dlatego mamy tylko dwa rodzaje asocjacji - has_one i has_many
+
+---
+
+## No i mamy
+
+```
+     Failure/Error: Unable to find matching line from backtrace
+     SystemStackError:
+       stack level too deep
+```
+
+???
+
+* Użytkownik zawiera paczkę, paczka zawiera użytkownika, użytkownik zawiera paczkę, ...
+
+---
+
+## Rozwiązanie #1
+
+```ruby
+class UserSerializer < ActiveModel::Serializer
+  [...]
+
+  has_many :packages, :embed => :ids
+
+  [...]
+end
+```
+
+```javascript
+{
+  "users":
+    [
+      {
+        "id": 1,
+        [...]
+        "package_ids": [2, 5]
+      }
+    ]
+}
+```
+
+???
+
+* zamiast dołączać wszystkie dane o paczkach, dołączamy tylko ich id
+* minus: jeżeli klient potrzebuje np. statusu paczki, będzie musiał wysłać n zapytań, dla każdej paczki osobno
+
+---
+
+## Rozwiązanie #2
+
+```ruby
+class UserSerializer < ActiveModel::Serializer
+  [...]
+
+  has_many :packages, :serializer => ShortPackageSerializer
+
+  [...]
+end
+```
+
+```ruby
+class ShortPackageSerializer < ActiveModel::Serializer
+  attributes :id, :status
+end
+```
+
+???
+
+* tworzymy nową klasę która zawiera podstawowe informacje o paczce, bez zagnieżdżania użytkownika
+* serializery mogą też po sobie dziedziczyć - wtedy nie musimy się powtarzać
+
+---
+
+class: center
+
+## Podsumowanie
+
+blog: adamniedzielski.github.io
+
+twitter: @niedzielskiadam
+
+___
+
+github.com/adamniedzielski/narwhale
+
+.footnote[prezentacja zrobiona przy użyciu remark]
+
+???
+
+* co chciałbym żebyście zapamiętali z tej prezentacji?
+* wejść na mojego bloga - mam bardzo mało odwiedzających
+* follować na twitterze
+* żartuję oczywiście, tak naprawdę to
+* istnieją dwa ciekawe gemy - rails-api i active_model_serializers
+* rails-api jeżeli robimy aplikację która jest tylko API, bez widoków
+* łatwa instalacja, zerowe obciążenie
+* active_model_serializers to jedno z możliwych rozwiązań, pozwoli mieć dużą kontrolę nad generowanym JSONem
+
+    </textarea>
+    <script src="http://gnab.github.io/remark/downloads/remark-0.6.0.min.js" type="text/javascript">
+    </script>
+    <script type="text/javascript">
+      var slideshow = remark.create({
+        highlightStyle: 'monokai',
+        ratio: '16:9'
+      });
+    </script>
+  </body>
+</html>
