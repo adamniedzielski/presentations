@@ -6,6 +6,7 @@
     <style type="text/css">
       body {
         font-size: 25px;
+        /*font-family:*/ 
       }
       h1 {
         font-size: 3em;
@@ -20,6 +21,7 @@
         font-size: 0.8em;
       }
       .footnote {
+        text-align: left;
         position: absolute;
         bottom: 3em;
         font-size: 0.5em;
@@ -28,6 +30,32 @@
         width: 25%;
         margin: 30px;
         vertical-align: middle;
+      }
+      .remark-slide-content ul li {
+        font-size: 35px;
+        padding-bottom: 40px;
+      }
+      #slide-value ul {
+        padding-top: 50px;
+      }
+      .happy-path {
+        font-size: 100px;
+        text-align: center;
+        display: block;
+        padding-top: 80px;
+      }
+
+      blockquote {
+        border-left: 4px solid rgba(170, 170, 170, 0.5);
+        font-style: italic;
+        padding-left: 20px;
+        font-size: 35px;
+      }
+
+      blockquote footer {
+        font-weight: bold;
+        font-style: normal;
+        padding-top: 30px;
       }
     </style>
   </head>
@@ -52,20 +80,20 @@ blog: adamniedzielski.github.io
 
 ---
 
-## white-box
+##.center[White-box]
 <img src="mysql.png" class="white-box-image"/>
 <img src="rails.png" class="white-box-image"/>
 <img src="solr.png" class="white-box-image"/>
 ---
 
-## black-box
+##.center[Black-box]
 
 <img src="blackbox.jpg" style="width: 50%;"/>
 <img src="firefox.png" style="width: 30%;"/>
 
 ---
 
-## capybara
+##.center[Capybara]
 
 ```ruby
 visit('/users/sign_in')
@@ -81,15 +109,18 @@ expect(page).to have_content('Success!')
 
 ---
 
-## Real user
+##.center[Real user]
 
-"Capybara helps you test web applications by simulating how a real user would interact with your app. [...]"
-
-from capybara README
+<blockquote>
+  Capybara helps you test web applications by simulating how a real user would interact with your app. [...]
+  <footer>
+    Capybara README
+  </footer>
+</blockquote>
 
 ---
 
-## Real user?
+##.center[Real user?]
 
 ```ruby
 
@@ -116,7 +147,7 @@ end
 
 ---
 
-## black-box testing Android
+##.center[Black-box testing Android]
 
 ```ruby
 
@@ -133,7 +164,7 @@ check_element_exists("view marked:'confirmation'")
 
 ---
 
-## The results
+##.center[The results]
 
 * strong coupling
 * dependent on API responses
@@ -142,7 +173,7 @@ check_element_exists("view marked:'confirmation'")
 
 ---
 
-## Lessons learned
+##.center[Lessons learned]
 
 <img src="mock.jpg" style="margin-left: 20%;"/>
 
@@ -153,17 +184,19 @@ check_element_exists("view marked:'confirmation'")
 * simple scenarios
 
 ---
-
-## When it adds value
+name: value
+##.center[When it adds value]
 
 * all parts combined
 * key business scenario
 
 ---
 
-## How to black-box
+##.center[How to black-box]
 
-<span style="font-size: 80px; text-align: center;"><span style="color:#ff0000;">h</span><span style="color:#ff7100;">a</span><span style="color:#ffa900;">p</span><span style="color:#fff800;">p</span><span style="color:#8bff00;">y</span><span style="color:#00ff07;"> </span><span style="color:#00ff9a;">p</span><span style="color:#00ffe8;">a</span><span style="color:#00ddff;">t</span><span style="color:#0040ff;">h</span></span>
+<div class = "happy-path"><span style="color:#ff0000;">h</span><span style="color:#ff7100;">a</span><span style="color:#ffa900;">p</span><span style="color:#fff800;">p</span><span style="color:#8bff00;">y</span><span style="color:#00ff07;"> </span><span style="color:#00ff9a;">p</span><span style="color:#00ffe8;">a</span><span style="color:#00ddff;">t</span><span style="color:#0040ff;">h</span></div>
+
+
 
 ???
 
@@ -180,7 +213,7 @@ blog: adamniedzielski.github.io
 
 twitter: @niedzielskiadam
 
-.footnote[slides done with remark]
+.footnote[slides done with remark</br>"mock the environment" image by bit.ly/1if3wQK]
 
     </textarea>
     <script src="http://gnab.github.io/remark/downloads/remark-0.6.0.min.js" type="text/javascript">
