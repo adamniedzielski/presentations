@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Ruby on Rails - przykładowa aplikacja</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <style type="text/css">
+      body {
+        font-size: 25px;
+        /*font-family:*/ 
+      }
+      h1 {
+        font-size: 3em;
+      }
+      h2 {
+        font-size: 2em;
+      }
+      h3 {
+        font-size: 1.5em;
+      }
+      .remark-code {
+        font-size: 0.85em;
+      }
+      .footnote {
+        text-align: left;
+        position: absolute;
+        bottom: 3em;
+        font-size: 0.5em;
+      }
+      img.white-box-image {
+        width: 25%;
+        margin: 30px;
+        vertical-align: middle;
+      }
+      .remark-slide-content ul li {
+        font-size: 35px;
+        padding-bottom: 40px;
+      }
+      #slide-value ul {
+        padding-top: 50px;
+      }
+      .happy-path {
+        font-size: 100px;
+        text-align: center;
+        display: block;
+        padding-top: 80px;
+      }
+
+      blockquote {
+        border-left: 4px solid rgba(170, 170, 170, 0.5);
+        font-style: italic;
+        padding-left: 20px;
+        font-size: 35px;
+      }
+
+      blockquote footer {
+        font-weight: bold;
+        font-style: normal;
+        padding-top: 30px;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle
+
+# Ruby on Rails - przykładowa aplikacja
+
+### Adam Niedzielski
+
+---
+class: center, middle
+
+
+### Ruby on Rails Developer @goodylabs
+
+### 1.5 roku doświadczenia z Ruby
+
+### rok doświadczenia z Rails
+
+---
+
+##.center[Gdzie używa się Railsów?]
+
+- szybkie prototypowanie
+- startup'y
+- klienta nie stać na marnowanie pieniędzy
+
+---
+
+##.center[Co będziemy budować?]
+
+- baza miast
+- współrzędne geograficzne wyciągane z zewnętrznego API
+- aplikacja udostępnia własne API
+
+---
+
+##.center[Tworzymy nową aplikację]
+
+```
+rvm use 2.1.2@pwjs-rails --create
+gem install rails 4.0.5
+
+rails new pwjs-rails
+```
+
+---
+
+##.center[Klonujemy i instalujemy!]
+
+```
+sudo apt-get install git-core
+git clone https://github.com/adamniedzielski/pwjs-rails.git
+cd pwjs-rails
+rvm current
+git clean -fd && git checkout -f d1fda556b562e14889
+bundle install
+rails server
+```
+
+---
+
+##.center[Scaffold]
+
+- model City z polami name, lat i lon
+
+```
+rails generate scaffold City name:string lat:string lon:string
+bundle exec rake db:migrate
+git clean -fd && git checkout -f bb74ca22c55fcd7d30
+```
+
+---
+
+##.center[Sprzątamy scaffold]
+
+- usuwamy akcje show, edit, update
+- ustawiamy stronę główną
+- akcje create i destroy nie będą akceptowały JSONa
+- w formularzu podajemy tylko nazwę miasta
+
+```
+git clean -fd && git checkout -f 07a91f4d4d5f6610a0
+```
+
+---
+
+##.center[#present?]
+
+```
+rails console
+```
+
+```ruby
+nil.present?
+"".present?
+"abc".present?
+[].present?
+[1, 2].present?
+```
+
+---
+
+##.center[Dodajemy walidacje]
+
+- chcemy żeby name, lat i lon były obowiązkowe dla każdego tworzonego miasta
+
+```
+git clean -fd && git checkout -f ba9ddcd1c210223a25
+```
+
+---
+
+##.center[Pierwsza próba naprawienia]
+
+- lat i lon zapisane "na sztywno"
+
+```
+git clean -fd && git checkout -f 341571a0e86a8397fd
+```
+
+---
+
+##.center[Potrzebujemy API]
+
+- darmowe
+- bez klucza dostępu
+- zwraca JSON
+- proste
+
+```
+http://nominatim.openstreetmap.org/search?q=Pabianice&format=json
+```
+
+
+---
+
+##.center[Używamy HTTParty]
+
+```ruby
+url = 'http://nominatim.openstreetmap.org/search?q=Pabianice&format=json'
+HTTParty.get(url)[0]["lat"]
+```
+
+```
+git clean -fd && git checkout -f d80cb3d62ef02b03ff
+```
+
+---
+
+##.center[Pobieramy współrzędne]
+
+```ruby
+base_url = "http://nominatim.openstreetmap.org/search"
+query = { :format => 'json', :q => @city.name }
+city = HTTParty.get(base_url, :query => query).first
+```
+
+```
+git clean -fd && git checkout -f 84cfc8ca86e436c7df
+```
+
+---
+
+##.center[AJAX i Railsy]
+
+- nowa akcja: index_with_ajax
+- request.xhr?
+
+```javascript
+$('...').on('ajax:success', function (e, data, status, xhr) {
+  [...]
+});
+```
+
+```
+git clean -fd && git checkout -f 4091dae21e20721f8d
+```
+
+---
+
+##.center[Udostępniamy własne API]
+
+- http://localhost:3000/cities.json
+
+```
+git clean -fd && git checkout -f 00103eaa71121f7f0e
+```
+
+---
+
+##.center[Łączymy z AngularJS]
+
+- integracja poprzez gem
+- nowa akcja: index_with_angular
+
+```
+git clean -fd && git checkout -f 7602e3fcc944b1d360
+```
+
+---
+
+##.center[Panel administratora]
+
+```ruby
+gem 'activeadmin', github: 'gregbell/active_admin'
+gem 'devise'
+```
+
+```
+rails generate active_admin:install
+bundle exec rake db:migrate 
+rails generate active_admin:resource City
+```
+
+```
+git clean -fd && git checkout -f 837da3b8f298960555
+```
+
+---
+
+
+##.center[Podsumowanie]
+
+- framework w którym liczy się frajda programisty
+- jeżeli Ci się podoba - **goodylabs** szuka chętnych na praktyki
+
+.footnote[prezentacja zrobiona w remark]
+
+???
+
+- asocjacje
+- deployment na Heroku
+- rake taski
+- openweather
+
+    </textarea>
+    <script src="remark-0.6.0.min.js" type="text/javascript">
+    </script>
+    <script type="text/javascript">
+      var slideshow = remark.create({
+        highlightStyle: 'monokai',
+        ratio: '16:9'
+      });
+    </script>
+  </body>
+</html>
