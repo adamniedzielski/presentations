@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Introduction to Ember.js</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <style type="text/css">
+      body {
+        font-size: 25px;
+        /*font-family:*/ 
+      }
+      h1 {
+        font-size: 3em;
+      }
+      h2 {
+        font-size: 2em;
+      }
+      h3 {
+        font-size: 1.5em;
+      }
+      .remark-code {
+        font-size: 0.8em;
+      }
+      .footnote {
+        text-align: left;
+        position: absolute;
+        bottom: 3em;
+        font-size: 0.5em;
+      }
+      img.white-box-image {
+        width: 25%;
+        margin: 30px;
+        vertical-align: middle;
+      }
+      .remark-slide-content ul li, .remark-slide-content ol li {
+        font-size: 35px;
+        padding-bottom: 40px;
+      }
+      #slide-value ul {
+        padding-top: 50px;
+      }
+
+      blockquote {
+        border-left: 4px solid rgba(170, 170, 170, 0.5);
+        font-style: italic;
+        padding-left: 20px;
+        font-size: 35px;
+      }
+
+      blockquote footer {
+        font-weight: bold;
+        font-style: normal;
+        padding-top: 30px;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle
+
+# Introduction to Ember.js
+
+### Adam Niedzielski
+
+---
+class: center
+
+## About me
+
+CEO @SundayCoding</br>
+Contractor @goodylabs
+
+</br>
+twitter: @niedzielskiadam</br>
+blog: adamniedzielski.github.io
+
+---
+
+##.center[Why discussing next JS framework?]
+
+* new framework means new concepts
+* no framework is best at everything
+* frameworks influence each other
+
+---
+
+##.center[Philosophy]
+
+* opinionated (makes common decisions for developer)
+* complete
+* follows semantic versioning
+* used in production by core team
+
+---
+
+##.center[Router]
+
+```javascript
+App.Router.map(function() {
+  this.route('artist', { path: 'artists/:artist_id' });
+  this.route('artists', { path: '/' });
+});
+```
+
+---
+
+##.center[Route]
+
+```javascript
+App.ArtistRoute = Ember.Route.extend({
+  model: function (params) {
+    return this.musicBrainzService.getArtist(params.artist_id);
+  }
+});
+```
+
+---
+
+##.center[Template]
+
+```
+<h2 class="artist-name">
+  {{name}}
+</h2>
+<div class="artist-content">
+  <ul class="albums">
+    {{#each album in albums itemController="album"}}
+      <li>
+        {{album.title}}
+        {{#if album.spotifyUrl}}
+          <a class="spotify" {{bind-attr href=album.spotifyUrl}}>
+            Listen on Spotify
+          </a>
+        {{/if}}
+      </li>
+    {{else}}
+      No albums, sorry!
+    {{/each}}
+  </ul>
+</div>
+```
+
+---
+
+##.center[Controller]
+
+```javascript
+App.AlbumController = Ember.ObjectController.extend({
+  spotifyUrl: function () {
+    var model = this.get('model');
+
+    this.spotifyService.getUrl(model.get("artist.name"), model.get('title')).
+      then(function (url) {
+        model.set('spotifyUrl', url);
+      });
+
+    return model.get('spotifyUrl');
+  }.property('model.spotifyUrl')
+});
+```
+
+---
+
+##.center[Ember Data]
+
+```javascript
+App.Todo = DS.Model.extend({
+  title: DS.attr('string'),
+  isCompleted: DS.attr('boolean')
+});
+
+App.ApplicationAdapter = DS.RESTAdapter.extend({
+});
+
+// ActiveModelAdapter
+// LSAdapter
+// ...
+```
+
+---
+
+##.center[Ember CLI]
+
+* asset pipeline
+* conventional project structure
+* ES6 module syntax
+* tests setup
+* blueprints
+* API mocking
+
+---
+
+##.center[Ember with ES6]
+
+```javascript
+import Ember from 'ember';
+
+export default Ember.Route.extend({
+  model: function (params) {
+    return this.musicBrainzService.getArtist(params.artist_id);
+  }
+});
+```
+
+---
+
+##.center[Learning roadmap]
+
+1. official Ember.js TODO app tutorial
+2. Ember.js docs
+3. Ember CLI docs
+4. TODO app with Ember CLI
+
+---
+
+class: center
+
+## Summary
+
+blog: adamniedzielski.github.io
+
+twitter: @niedzielskiadam
+
+<img src="tomster.png"/>
+
+.footnote[slides done with remark]
+    </textarea>
+    <script src="remark-0.6.0.min.js" type="text/javascript">
+    </script>
+    <script type="text/javascript">
+      var slideshow = remark.create({
+        highlightStyle: 'monokai',
+        ratio: '16:9'
+      });
+    </script>
+  </body>
+</html>
