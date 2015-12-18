@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>CSS dla backendowców</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <style type="text/css">
+      body {
+        font-size: 25px;
+        /*font-family:*/ 
+      }
+      h1 {
+        font-size: 3em;
+      }
+      h2 {
+        font-size: 2em;
+      }
+      h3 {
+        font-size: 1.5em;
+      }
+      .remark-code {
+        font-size: 0.8em;
+      }
+      .footnote {
+        text-align: left;
+        position: absolute;
+        bottom: 3em;
+        font-size: 0.5em;
+      }
+      img.white-box-image {
+        width: 25%;
+        margin: 30px;
+        vertical-align: middle;
+      }
+      .remark-slide-content ul li, .remark-slide-content ol li {
+        font-size: 35px;
+        padding-bottom: 40px;
+      }
+      #slide-value ul {
+        padding-top: 50px;
+      }
+
+      blockquote {
+        border-left: 4px solid rgba(170, 170, 170, 0.5);
+        font-style: italic;
+        padding-left: 20px;
+        font-size: 35px;
+      }
+
+      blockquote footer {
+        font-weight: bold;
+        font-style: normal;
+        padding-top: 30px;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle
+
+# CSS dla backendowców
+
+### Adam Niedzielski
+
+---
+class: center
+
+## O mnie
+
+CEO @SundayCoding<br/>
+Ekspert Ruby / JavaScript do wynajęcia
+
+<br/>
+twitter: @niedzielskiadam<br/>
+blog: adamniedzielski.github.io
+
+---
+
+##.center[Motywacja]
+
+---
+
+##.center["CSS jest zepsuty"]
+
+---
+
+##.center[Twitter Bootstrap?]
+
+---
+
+##.center[SASS]
+
+```
+button {
+  border: 1px solid $button_border_color;
+
+  &.button--muted {
+    border-color: lighten($button_border_color, 10);
+  }
+}
+```
+
+---
+
+##.center[ID i stylowanie]
+
+
+```css
+/* źle */
+#main-table tbody td {
+  padding: 5px;
+}
+```
+
+---
+
+##.center[Funkcja wizualna]
+
+```html
+<!-- źle -->
+<div class="download-instructions">
+  <!-- ... -->
+</div>
+```
+
+```html
+<!-- dobrze -->
+<div class="highlight-box">
+  <!-- ... -->
+</div>
+```
+
+---
+
+##.center[Podział na pliki]
+
+```
+stylesheets
+    components
+        _footer.scss
+        _pagination.scss
+        _popup_bar.scss
+        _taxonomies_sidebar.scss
+    pages
+        _cart.scss
+        _home.scss
+        _product_list.scss
+```
+
+---
+
+##.center[Zagnieżdżenie]
+
+```
+// źle
+.footer {
+  .left-column {
+    .top-news {
+      .heading {
+        color: red;
+      }
+    }
+  }
+}
+```
+
+---
+
+##.center[Styluj klasy]
+
+```css
+/* źle */
+header li {
+  margin-top: 5px;
+}
+
+nav.primary-navigation {
+  background-color: green;
+}
+```
+
+---
+
+##.center[Wyjątek: bazowe style]
+
+```css
+h1 {
+  color: #222222;
+  font-size: 35px;
+  font-weight: 600;
+}
+```
+
+---
+
+##.center[block__element--modifier]
+
+```html
+<div class="popup-bar">
+  <div class="popup-bar__content">
+    <span class="popup-bar__heading">
+      <!--  -->
+    </span>
+    <span class="popup-bar__description">
+     <!--  -->
+    </span>
+    <span class="popup-bar__description popup-bar__description--small">
+      <!--  -->
+    </span>
+  </div>
+  <div class="popup-bar__actions">
+    <!--  -->
+  </div>
+  <div class="popup-bar__close">
+    <a href="#" class="js-popup-bar-close">X</a>
+  </div>
+</div>
+```
+
+---
+
+##.center[Semantyczny grid]
+
+#### neat.bourbon.io
+
+```
+.footer__section {
+  @include span-columns(4);
+  @include omega(3n);
+
+  @include media($tablet) {
+    @include span-columns(4);
+    @include omega(2n);
+  }
+
+  @include media($mobile) {
+    @include span-columns(4);
+  }
+}
+```
+
+---
+
+##.center[Semantyczny grid]
+
+```
+$tablet: new-breakpoint(max-width 1000px 8);
+$mobile: new-breakpoint(max-width 600px 4);
+```
+
+---
+
+##.center[Jak refaktorować CSS?]
+
+---
+
+class: center
+
+## Podsumowanie
+
+twitter: @niedzielskiadam<br/>
+blog: adamniedzielski.github.io
+
+---
+
+class: center, middle
+
+## Łódź Ruby User Group
+
+meetup.com/lodzrug<br/>
+13.01.2016
+
+---
+
+class: center, middle
+
+## NodeSchool Łódź
+
+nodeschool.io/lodz<br/>
+30.01.2016
+
+---
+
+class: center, middle
+
+## Data Science Łódź
+
+meetup.com/Data-Science-Łodź
+
+    </textarea>
+    <script src="remark-0.6.0.min.js" type="text/javascript">
+    </script>
+    <script type="text/javascript">
+      var slideshow = remark.create({
+        highlightStyle: 'monokai',
+        ratio: '16:9'
+      });
+    </script>
+  </body>
+</html>
