@@ -1,55 +1,23 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>CSS dla backendowców</title>
+    <title>CSS for backend programmers</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <style type="text/css">
-      body {
-        font-size: 25px;
-        /*font-family:*/ 
+      .remark-slide-content {
+        font-size: 30px;
       }
       h1 {
-        font-size: 3em;
+        font-size: 2.5em;
       }
       h2 {
-        font-size: 2em;
-      }
-      h3 {
         font-size: 1.5em;
       }
+      h3 {
+        font-size: 1.2em;
+      }
       .remark-code {
-        font-size: 0.8em;
-      }
-      .footnote {
-        text-align: left;
-        position: absolute;
-        bottom: 3em;
-        font-size: 0.5em;
-      }
-      img.white-box-image {
-        width: 25%;
-        margin: 30px;
-        vertical-align: middle;
-      }
-      .remark-slide-content ul li, .remark-slide-content ol li {
-        font-size: 35px;
-        padding-bottom: 40px;
-      }
-      #slide-value ul {
-        padding-top: 50px;
-      }
-
-      blockquote {
-        border-left: 4px solid rgba(170, 170, 170, 0.5);
-        font-style: italic;
-        padding-left: 20px;
-        font-size: 35px;
-      }
-
-      blockquote footer {
-        font-weight: bold;
-        font-style: normal;
-        padding-top: 30px;
+        font-size: 0.7em;
       }
     </style>
   </head>
@@ -57,29 +25,30 @@
     <textarea id="source">
 class: center, middle
 
-# CSS dla backendowców
+# CSS for backend programmers
 
 ### Adam Niedzielski
 
 ---
 class: center
 
-## O mnie
+## About me
 
-CEO @SundayCoding<br/>
-Ekspert Ruby / JavaScript do wynajęcia
+CEO @ Sunday Coding<br/>
+Ruby / JavaScript consultant
 
 <br/>
 twitter: @niedzielskiadam<br/>
-blog.sundaycoding.com
+blog.sundaycoding.com<br/>
+Codebase Health Check - check.sundaycoding.com
 
 ---
 
-##.center[Motywacja]
+##.center[Motivation for choosing this subject]
 
 ---
 
-##.center["CSS jest zepsuty"]
+##.center["CSS is broken"]
 
 ---
 
@@ -89,7 +58,7 @@ blog.sundaycoding.com
 
 ##.center[SASS]
 
-```
+```scss
 button {
   border: 1px solid $button_border_color;
 
@@ -101,11 +70,11 @@ button {
 
 ---
 
-##.center[ID i stylowanie]
+##.center[IDs and styling]
 
 
-```css
-/* źle */
+```scss
+// not good
 #main-table tbody td {
   padding: 5px;
 }
@@ -113,17 +82,17 @@ button {
 
 ---
 
-##.center[Funkcja wizualna]
+##.center[Visual function]
 
 ```html
-<!-- źle -->
+<!-- quite bad -->
 <div class="download-instructions">
   <!-- ... -->
 </div>
 ```
 
 ```html
-<!-- dobrze -->
+<!-- better -->
 <div class="highlight-box">
   <!-- ... -->
 </div>
@@ -131,9 +100,9 @@ button {
 
 ---
 
-##.center[Podział na pliki]
+##.center[Division into files]
 
-```
+```bash
 stylesheets
     components
         _footer.scss
@@ -148,10 +117,10 @@ stylesheets
 
 ---
 
-##.center[Zagnieżdżenie]
+##.center[Nesting]
 
-```
-// źle
+```scss
+// not good
 .footer {
   .left-column {
     .top-news {
@@ -165,14 +134,15 @@ stylesheets
 
 ---
 
-##.center[Styluj klasy]
+##.center[Style the classes]
 
 ```css
-/* źle */
+/* bad */
 header li {
   margin-top: 5px;
 }
 
+/* also bad */
 nav.primary-navigation {
   background-color: green;
 }
@@ -180,9 +150,10 @@ nav.primary-navigation {
 
 ---
 
-##.center[Wyjątek: bazowe style]
+##.center[Exception: base styles]
 
 ```css
+/* this is fine */
 h1 {
   color: #222222;
   font-size: 35px;
@@ -218,11 +189,11 @@ h1 {
 
 ---
 
-##.center[Semantyczny grid]
+##.center[Semantic grid]
 
 #### neat.bourbon.io
 
-```
+```scss
 .footer__section {
   @include span-columns(4);
   @include omega(3n);
@@ -240,22 +211,27 @@ h1 {
 
 ---
 
-##.center[Semantyczny grid]
+##.center[Semantic grid]
 
-```
+```scss
 $tablet: new-breakpoint(max-width 1000px 8);
 $mobile: new-breakpoint(max-width 600px 4);
 ```
 
 ---
 
-##.center[Jak refaktorować CSS?]
+##.center[How to refactor CSS?]
+
+- 3348 lines of CSS at the beginning
+- 972 lines of CSS after refactoring
+- refactoring took 81 man-hours
+- changing the grid system / preparing responsive version of the site took 24 man-hours
 
 ---
 
 class: center
 
-## Podsumowanie
+## Summary
 
 twitter: @niedzielskiadam<br/>
 blog.sundaycoding.com
@@ -278,7 +254,7 @@ nodeschool.io/lodz<br/>
 30.01.2016
 
     </textarea>
-    <script src="remark-0.6.0.min.js" type="text/javascript">
+    <script src="remark-0.13.min.js" type="text/javascript">
     </script>
     <script type="text/javascript">
       var slideshow = remark.create({
