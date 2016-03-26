@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Responsible gem collector</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <style type="text/css">
+      .remark-code {
+        font-size: 0.7em;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle
+
+# Q: How should I implement * in my Rails app?
+# A: There is a gem for that!
+
+---
+
+class: center, middle
+
+# NO
+
+---
+
+class: center, middle
+
+# Responsible gem collector
+
+### Adam Niedzielski
+
+---
+class: center
+
+## About me
+
+CEO @ Sunday Coding<br/>
+Ruby / JavaScript consultant
+
+<br/>
+twitter: @niedzielskiadam<br/>
+blog.sundaycoding.com<br/>
+Codebase Health Check - check.sundaycoding.com
+
+---
+class: center, middle
+
+# Rails is great for prototyping
+
+
+---
+class: center, middle
+
+# I've never prototyped anything
+
+---
+
+class: center, middle
+
+# ♥ for all gem maintainers
+
+---
+
+##.center[Paranoia]
+
+```ruby
+client.destroy # not really
+```
+
+---
+
+##.center[Paranoia]
+
+```ruby
+client.destroy # not really
+client.really_destroy!
+```
+
+---
+
+##.center[default_scope]
+
+```ruby
+def self.acts_as_paranoid(options={})
+  # [...]
+  default_scope { paranoia_scope }
+  # [...]
+end
+```
+
+---
+
+##.center[default_scope]
+
+```ruby
+def self.acts_as_paranoid(options={})
+  # [...]
+  default_scope { paranoia_scope }
+  # [...]
+end
+
+def product
+  Product.unscoped { super }
+end
+```
+
+???
+
+They have recently added "without_default_scope" option
+
+---
+
+##.center[obfuscate_id]
+
+```ruby
+class Post < ActiveRecord::Base
+  obfuscate_id
+end
+```
+
+---
+
+##.center[obfuscate_id]
+
+```ruby
+module ClassMethods
+  def find(*args)
+    scope = args.slice!(0)
+    options = args.slice!(0) || {}
+    if has_obfuscated_id? && !options[:no_obfuscated_id]
+      if scope.is_a?(Array)
+        scope.map! {|a| deobfuscate_id(a).to_i}
+      else
+        scope = deobfuscate_id(scope)
+      end
+    end
+    super(scope)
+  end
+end
+```
+
+???
+
+- A simple Rails plugin to mix up resource ids a bit. 
+- For new websites, you may not want to give away how few people are signed up.
+- Every website has a third user, but that third user doesn't have to know he is the third user.
+- Transforms normal seqential ids into random-looking ten digit numerical strings.
+- No database changes or migrations are needed. The record is still stored in the database with its original id.
+
+---
+
+##.center[Overriding methods]
+
+---
+
+##.center[FriendlyId]
+
+```ruby
+Post.find("my-awesome-post")
+```
+
+---
+
+##.center[FriendlyId]
+
+```ruby
+Post.find("my-awesome-post")
+Post.friendly.find("my-awesome-post")
+```
+
+---
+
+##.center[Callbacks]
+
+```ruby
+module FriendlyId
+  module Slugged
+
+    def self.included(model_class)
+      # [...]
+      model_class.before_validation :set_slug
+      # [...]
+    end
+  end
+end
+```
+
+---
+
+##.center[Geocoder]
+
+```ruby
+geocoded_by :full_street_address
+after_validation :geocode
+```
+
+---
+
+##.center[Elasticsearch - easy vs. simple]
+
+---
+
+##.center[Elasticsearch::Model]
+
+```ruby
+class Article < ActiveRecord::Base
+  include Elasticsearch::Model
+  include Elasticsearch::Model::Callbacks
+end
+```
+
+---
+
+##.center[Elasticsearch::Model]
+
+```ruby
+class Article < ActiveRecord::Base
+  include Elasticsearch::Model
+  include Elasticsearch::Model::Callbacks
+end
+
+Article.import
+
+articles = Article.search('foobar').records
+```
+
+---
+
+##.center[Elasticsearch::Persistence]
+
+```ruby
+class ArticleRepository
+  include Elasticsearch::Persistence::Repository
+
+  def serialize(record)
+    # [...]
+  end
+
+  def deserialize(document)
+    # [...]
+  end
+end
+```
+
+---
+
+##.center[Elasticsearch::Persistence]
+
+```ruby
+class ArticleRepository
+  include Elasticsearch::Persistence::Repository
+
+  def serialize(record)
+    # [...]
+  end
+
+  def deserialize(document)
+    # [...]
+  end
+end
+
+repository = ArticleRepository.new
+repository.save(article)
+results = repository.search(query: { match: { title: 'fox dog' } })
+```
+
+---
+
+##.center[Full-text search gets separated]
+
+---
+
+##.center[Paperclip vs. CarrierWave]
+
+---
+
+##.center[Paperclip]
+
+```ruby
+class User < ActiveRecord::Base
+  has_attached_file :avatar
+end
+```
+
+---
+
+##.center[Paperclip]
+
+```ruby
+class User < ActiveRecord::Base
+  has_attached_file :avatar,
+    styles: { medium: "300x300>", thumb: "100x100>" },
+    default_url: "/images/:style/missing.png",
+    processors: [:rotator],
+    s3_permissions: :private,
+    convert_options: { all: '-strip -auto-orient -colorspace sRGB' }
+  validates_attachment_content_type :avatar, content_type: /\Aimage\/.*\Z/
+end
+```
+
+---
+
+##.center[CarrierWave]
+
+```ruby
+class AvatarUploader < CarrierWave::Uploader::Base
+  include CarrierWave::MiniMagick
+
+  storage :aws
+
+  def store_dir
+    "uploads/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
+  end
+
+  process resize_to_fit: [800, 800]
+
+  version :thumb do
+    process resize_to_fill: [200,200]
+  end
+
+  def extension_white_list
+    %w(jpg jpeg gif png)
+  end
+
+  def default_url(*args)
+    "/images/fallback/" + [version_name, "default.png"].compact.join('_')
+  end
+end
+```
+
+---
+
+##.center[Models have too many responsibilities]
+
+---
+
+##.center[StateMachines]
+
+```ruby
+class Vehicle < ActiveRecord::Base
+  attr_accessor :seatbelt_on, :time_used, :auto_shop_busy
+
+  state_machine :state, initial: :parked do
+    before_transition parked: any - :parked, do: :put_on_seatbelt
+
+    after_transition on: :crash, do: :tow
+    after_transition on: :repair, do: :fix
+    after_transition any => :parked do |vehicle, transition|
+      vehicle.seatbelt_on = false
+    end
+
+    event :park do
+      transition [:idling, :first_gear] => :parked
+    end
+
+    # [...]
+  end
+end
+```
+
+---
+
+##.center[Own your business logic]
+
+---
+
+##.center[Which gems are safe?]
+
+---
+
+##.center[Stripe]
+
+```ruby
+Stripe.api_key = "key"
+
+Stripe::Charge.create(
+  amount: 400,
+  currency: "eur",
+  source: "tok_87zVXUEg4ljnsi",
+  description: "Charge for test@example.com"
+)
+```
+
+---
+
+##.center[API wrappers]
+
+---
+
+##.center[Bunny]
+
+```ruby
+connection = Bunny.new(host: 'localhost')
+connection.start
+channel = connection.create_channel
+exchange = channel.fanout(exchange_name, durable: true)
+exchange.publish(message.to_json)
+```
+
+---
+
+##.center[Adapters for external services]
+
+---
+
+##.center[Spreadsheet]
+
+```ruby
+book = Spreadsheet::Workbook.new
+sheet1 = book.create_worksheet
+sheet1.name = 'My First Worksheet'
+sheet1[1,0] = 'Japan'
+book.write '/path/to/output/excel-file.xls'
+```
+
+---
+
+##.center[(Probably) not the core of your business]
+
+---
+
+##.center[Recap]
+
+1. Don't delegate your business logic to gems
+2. Invoke library code explicitly
+3. Take a peek under the hood
+
+---
+
+##.center[Thank you!]
+
+---
+
+##.center[Questions?]
+
+    </textarea>
+    <script src="remark-0.13.min.js" type="text/javascript">
+    </script>
+    <script type="text/javascript">
+      var slideshow = remark.create({
+        highlightStyle: 'monokai',
+        ratio: '16:9'
+      });
+    </script>
+  </body>
+</html>
