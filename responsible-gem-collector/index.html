@@ -5,7 +5,10 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <style type="text/css">
       .remark-code {
-        font-size: 0.7em;
+        font-size: 1.2em;
+      }
+      .remark-slide-content {
+        font-size: 1.6em;
       }
     </style>
   </head>
@@ -20,7 +23,7 @@ class: center, middle
 
 class: center, middle
 
-# NO
+<img src="no.jpg" style="width: 100%;"/>
 
 ---
 
@@ -55,10 +58,29 @@ class: center, middle
 # I've never prototyped anything
 
 ---
+class: center, middle
+
+# My experience
+
+---
 
 class: center, middle
 
-# ♥ for all gem maintainers
+# This talk is all about examples
+
+---
+
+class: center, middle
+
+# <span style="color: red;">♥</span> for all gem maintainers
+
+---
+
+class: center, middle
+
+# Paranoia
+
+# <span style="color: #DB121C;">💎</span>
 
 ---
 
@@ -76,6 +98,12 @@ client.destroy # not really
 client.destroy # not really
 client.really_destroy!
 ```
+
+---
+
+##.center[Method name lies]
+
+<img src="lie.jpg" style="width: 100%;"/>
 
 ---
 
@@ -105,9 +133,13 @@ def product
 end
 ```
 
-???
+---
 
-They have recently added "without_default_scope" option
+class: center, middle
+
+# obfuscate_id
+
+# <span style="color: #DB121C;">💎</span>
 
 ---
 
@@ -128,7 +160,8 @@ module ClassMethods
   def find(*args)
     scope = args.slice!(0)
     options = args.slice!(0) || {}
-    if has_obfuscated_id? && !options[:no_obfuscated_id]
+    if has_obfuscated_id? &&
+      !options[:no_obfuscated_id]
       if scope.is_a?(Array)
         scope.map! {|a| deobfuscate_id(a).to_i}
       else
@@ -149,8 +182,17 @@ end
 - No database changes or migrations are needed. The record is still stored in the database with its original id.
 
 ---
+class: center, middle
 
-##.center[Overriding methods]
+# Overriding methods
+
+---
+
+class: center, middle
+
+# FriendlyId
+
+# <span style="color: #DB121C;">💎</span>
 
 ---
 
@@ -171,7 +213,7 @@ Post.friendly.find("my-awesome-post")
 
 ---
 
-##.center[Callbacks]
+##.center[How is slug generated?]
 
 ```ruby
 module FriendlyId
@@ -187,6 +229,19 @@ end
 ```
 
 ---
+##.center[Callbacks]
+
+<img src="callbacks.jpg" style="width: 100%;"/>
+
+---
+
+class: center, middle
+
+# Geocoder
+
+# <span style="color: #DB121C;">💎</span>
+
+---
 
 ##.center[Geocoder]
 
@@ -197,7 +252,17 @@ after_validation :geocode
 
 ---
 
-##.center[Elasticsearch - easy vs. simple]
+class: center, middle
+
+# Elasticsearch - easy vs. simple
+
+---
+
+class: center, middle
+
+# Elasticsearch::Model
+
+# <span style="color: #DB121C;">💎</span>
 
 ---
 
@@ -224,6 +289,20 @@ Article.import
 
 articles = Article.search('foobar').records
 ```
+
+---
+
+class: center, middle
+
+# Limitations
+
+---
+
+class: center, middle
+
+<h1 style="font-size: 50px;">Elasticsearch::Persistence</h1>
+
+# <span style="color: #DB121C;">💎</span>
 
 ---
 
@@ -262,16 +341,43 @@ end
 
 repository = ArticleRepository.new
 repository.save(article)
-results = repository.search(query: { match: { title: 'fox dog' } })
 ```
 
 ---
 
-##.center[Full-text search gets separated]
+##.center[Elasticsearch::Persistence]
+
+```ruby
+class ArticleRepository
+  include Elasticsearch::Persistence::Repository
+
+  def find_by_title(title)
+    search(query: { match: { title: title } })
+  end
+end
+
+results = repository.find_by_title('fox dog')
+```
+
+---
+
+class: center, middle
+
+# Full-text search gets separated
 
 ---
 
 ##.center[Paperclip vs. CarrierWave]
+
+<img src="fight.jpg" style="width: 90%;"/>
+
+---
+
+class: center, middle
+
+# Paperclip
+
+# <span style="color: #DB121C;">💎</span>
 
 ---
 
@@ -290,14 +396,27 @@ end
 ```ruby
 class User < ActiveRecord::Base
   has_attached_file :avatar,
-    styles: { medium: "300x300>", thumb: "100x100>" },
+    styles: {
+      medium: "300x300>", thumb: "100x100>"
+    },
     default_url: "/images/:style/missing.png",
     processors: [:rotator],
     s3_permissions: :private,
-    convert_options: { all: '-strip -auto-orient -colorspace sRGB' }
-  validates_attachment_content_type :avatar, content_type: /\Aimage\/.*\Z/
+    convert_options: {
+      all: '-strip -auto-orient -colorspace sRGB'
+    }
+  validates_attachment_content_type :avatar,
+    content_type: /\Aimage\/.*\Z/
 end
 ```
+
+---
+
+class: center, middle
+
+# CarrierWave
+
+# <span style="color: #DB121C;">💎</span>
 
 ---
 
@@ -306,32 +425,36 @@ end
 ```ruby
 class AvatarUploader < CarrierWave::Uploader::Base
   include CarrierWave::MiniMagick
-
-  storage :aws
-
-  def store_dir
-    "uploads/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
-  end
-
   process resize_to_fit: [800, 800]
 
   version :thumb do
     process resize_to_fill: [200,200]
   end
 
+  def store_dir
+    "uploads/#{mounted_as}/#{model.id}"
+  end
+
   def extension_white_list
     %w(jpg jpeg gif png)
   end
-
-  def default_url(*args)
-    "/images/fallback/" + [version_name, "default.png"].compact.join('_')
-  end
+  # [...]
 end
 ```
 
 ---
 
-##.center[Models have too many responsibilities]
+class: center, middle
+
+# Models have too many responsibilities
+
+---
+
+class: center, middle
+
+# StateMachines
+
+# <span style="color: #DB121C;">💎</span>
 
 ---
 
@@ -339,16 +462,12 @@ end
 
 ```ruby
 class Vehicle < ActiveRecord::Base
-  attr_accessor :seatbelt_on, :time_used, :auto_shop_busy
-
   state_machine :state, initial: :parked do
-    before_transition parked: any - :parked, do: :put_on_seatbelt
+    before_transition parked: any - :parked,
+      do: :put_on_seatbelt
 
     after_transition on: :crash, do: :tow
     after_transition on: :repair, do: :fix
-    after_transition any => :parked do |vehicle, transition|
-      vehicle.seatbelt_on = false
-    end
 
     event :park do
       transition [:idling, :first_gear] => :parked
@@ -361,11 +480,101 @@ end
 
 ---
 
-##.center[Own your business logic]
+class: center, middle
+
+# Own your business logic
 
 ---
 
-##.center[Which gems are safe?]
+class: center, middle
+
+# Pundit
+
+# <span style="color: #DB121C;">💎</span>
+
+---
+
+##.center[Pundit]
+
+```ruby
+class PostPolicy
+  attr_reader :user, :post
+
+  def initialize(user, post)
+    @user = user
+    @post = post
+  end
+
+  def show?
+    user.admin? || post.user = user
+  end
+end
+```
+
+---
+
+##.center[Pundit]
+
+```ruby
+def show
+  @post = Post.find(params[:id])
+  authorize @post
+end
+```
+---
+
+##.center[Pundit]
+
+```ruby
+def show
+  @post = Post.find(params[:id])
+  authorize @post, :show?
+end
+```
+---
+
+##.center[Pundit]
+
+```ruby
+class Post < ActiveRecord::Base
+  def self.policy_class
+    DifferentPolicy
+  end
+end
+```
+---
+
+##.center[Pundit]
+
+```ruby
+Pundit.policy!(user, post).show?
+```
+---
+
+##.center[Pundit]
+
+```ruby
+PostPolicy.new(user, post).show?
+```
+---
+
+class: center, middle
+
+# Which gems are safe?
+
+---
+
+class: center, middle
+
+# API wrappers
+
+---
+
+class: center, middle
+
+# Stripe
+
+# <span style="color: #DB121C;">💎</span>
 
 ---
 
@@ -381,10 +590,19 @@ Stripe::Charge.create(
   description: "Charge for test@example.com"
 )
 ```
+---
+
+class: center, middle
+
+# Adapters for external services
 
 ---
 
-##.center[API wrappers]
+class: center, middle
+
+# Bunny
+
+# <span style="color: #DB121C;">💎</span>
 
 ---
 
@@ -394,13 +612,26 @@ Stripe::Charge.create(
 connection = Bunny.new(host: 'localhost')
 connection.start
 channel = connection.create_channel
-exchange = channel.fanout(exchange_name, durable: true)
+exchange = channel.fanout(
+  exchange_name,
+  durable: true
+)
 exchange.publish(message.to_json)
 ```
 
 ---
 
-##.center[Adapters for external services]
+class: center, middle
+
+# Not the core of your business
+
+---
+
+class: center, middle
+
+# Spreadsheet
+
+# <span style="color: #DB121C;">💎</span>
 
 ---
 
@@ -416,7 +647,18 @@ book.write '/path/to/output/excel-file.xls'
 
 ---
 
-##.center[(Probably) not the core of your business]
+##.center[Recap]
+
+1. Don't delegate your business logic to gems
+
+
+---
+
+##.center[Recap]
+
+1. Don't delegate your business logic to gems
+2. Invoke library code explicitly
+
 
 ---
 
@@ -427,12 +669,17 @@ book.write '/path/to/output/excel-file.xls'
 3. Take a peek under the hood
 
 ---
+class: center, middle
 
-##.center[Thank you!]
+# Thank you!
 
 ---
+class: center
+
 
 ##.center[Questions?]
+
+<img src="questions.jpg" style="width: 70%;"/>
 
     </textarea>
     <script src="remark-0.13.min.js" type="text/javascript">
@@ -440,7 +687,7 @@ book.write '/path/to/output/excel-file.xls'
     <script type="text/javascript">
       var slideshow = remark.create({
         highlightStyle: 'monokai',
-        ratio: '16:9'
+        ratio: '4:3'
       });
     </script>
   </body>
