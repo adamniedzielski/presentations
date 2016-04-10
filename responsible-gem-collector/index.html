@@ -506,7 +506,7 @@ class PostPolicy
   end
 
   def show?
-    user.admin? || post.user = user
+    user.admin? || post.user == user
   end
 end
 ```
