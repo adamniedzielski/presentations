@@ -558,92 +558,29 @@ PostPolicy.new(user, post).show?
 ```
 ---
 
-class: center, middle
+##.center[Which gems are safe?]
 
-# Which gems are safe?
-
----
-
-class: center, middle
-
-# API wrappers
 
 ---
 
-class: center, middle
+##.center[Which gems are safe?]
 
-# Stripe
-
-# <span style="color: #DB121C;">💎</span>
+1. API wrappers
 
 ---
 
-##.center[Stripe]
+##.center[Which gems are safe?]
 
-```ruby
-Stripe.api_key = "key"
-
-Stripe::Charge.create(
-  amount: 400,
-  currency: "eur",
-  source: "tok_87zVXUEg4ljnsi",
-  description: "Charge for test@example.com"
-)
-```
----
-
-class: center, middle
-
-# Adapters for external services
+1. API wrappers
+2. Adapters for external services 
 
 ---
 
-class: center, middle
+##.center[Which gems are safe?]
 
-# Bunny
-
-# <span style="color: #DB121C;">💎</span>
-
----
-
-##.center[Bunny]
-
-```ruby
-connection = Bunny.new(host: 'localhost')
-connection.start
-channel = connection.create_channel
-exchange = channel.fanout(
-  exchange_name,
-  durable: true
-)
-exchange.publish(message.to_json)
-```
-
----
-
-class: center, middle
-
-# Not the core of your business
-
----
-
-class: center, middle
-
-# Spreadsheet
-
-# <span style="color: #DB121C;">💎</span>
-
----
-
-##.center[Spreadsheet]
-
-```ruby
-book = Spreadsheet::Workbook.new
-sheet1 = book.create_worksheet
-sheet1.name = 'My First Worksheet'
-sheet1[1,0] = 'Japan'
-book.write '/path/to/output/excel-file.xls'
-```
+1. API wrappers
+2. Adapters for external services 
+3. Not the core of your business
 
 ---
 
