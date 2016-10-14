@@ -10,6 +10,9 @@
       .remark-slide-content {
         font-size: 1.6em;
       }
+      .big-text {
+        font-size: 1.4em;
+      }
     </style>
   </head>
   <body>
@@ -172,14 +175,6 @@ module ClassMethods
   end
 end
 ```
-
-???
-
-- A simple Rails plugin to mix up resource ids a bit. 
-- For new websites, you may not want to give away how few people are signed up.
-- Every website has a third user, but that third user doesn't have to know he is the third user.
-- Transforms normal seqential ids into random-looking ten digit numerical strings.
-- No database changes or migrations are needed. The record is still stored in the database with its original id.
 
 ---
 class: center, middle
@@ -565,45 +560,54 @@ PostPolicy.new(user, post).show?
 
 ##.center[Which gems are safe?]
 
+.big-text[
 1. API wrappers
-
+]
 ---
 
 ##.center[Which gems are safe?]
 
+.big-text[
 1. API wrappers
 2. Adapters for external services 
+]
 
 ---
 
 ##.center[Which gems are safe?]
 
+.big-text[
 1. API wrappers
 2. Adapters for external services 
 3. Not the core of your business
+]
 
 ---
 
 ##.center[Recap]
 
+.big-text[
 1. Don't delegate your business logic to gems
-
+]
 
 ---
 
 ##.center[Recap]
 
+.big-text[
 1. Don't delegate your business logic to gems
 2. Invoke library code explicitly
-
+]
 
 ---
 
 ##.center[Recap]
 
+.big-text[
 1. Don't delegate your business logic to gems
 2. Invoke library code explicitly
 3. Take a peek under the hood
+]
 
 ---
 class: center, middle
